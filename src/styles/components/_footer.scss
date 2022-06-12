@@ -1,0 +1,23 @@
+@use "../variables/colors" as *;
+
+.footer {
+  background-color: $gray-300;
+  color: $blue-100;
+  padding: 16px;
+
+  &--title {
+    font-size: 1.1rem;
+    text-align: center;
+    margin: 0 0 16px;
+  }
+
+  &--attribution {
+    font-size: 0.7rem;
+    text-align: center;
+
+    a,
+    a:visited {
+      color: $blue-200;
+    }
+  }
+}

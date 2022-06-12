@@ -1,3 +1,5 @@
+@use "../variables/colors" as *;
+
 html,
 body {
   padding: 0;
@@ -6,4 +8,8 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+body {
+  background-color: $gray-400;
 }
