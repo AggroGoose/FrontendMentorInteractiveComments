@@ -1,15 +1,49 @@
 import Head from "next/head";
 import Footer from "../components/UI/Footer";
+import CommentItem from "../components/Comments/CommentItem";
 import db from "../app/firebase";
-import { getDocs } from "firebase/firestore";
+import { doc, getDocs, setDoc } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect, useState } from "react";
+import { signOut, getAuth } from "firebase/auth";
 
 export default function Home(props) {
   const [commentList, setCommentList] = useState({});
+  const [userList, setUserList] = useState({});
+  const auth = getAuth();
+  const [user] = useAuthState(auth);
 
   useEffect(() => {
     setCommentList(props.comments);
+    setUserList(props.users);
   }, []);
+
+  useEffect(() => {
+    const newUser = {};
+    if (!user) return;
+    const id = user.uid;
+    if (!userList[id]) {
+      newUser[id] = {
+        display: user.displayName,
+        picture: user.photoURL,
+        commentVotes: null,
+        replyVotes: null,
+        subreplyVotes: null,
+      };
+      const newRef = doc(db.users, id);
+      setDoc(newRef, newUser[id]).then(
+        setUserList(Object.assign(userList, newUser))
+      );
+    }
+  }, [user]);
+
+  const signInHandler = () => {
+    db.signInWithGithub();
+  };
+
+  const signOutHandler = () => {
+    signOut(auth);
+  };
 
   return (
     <div>
@@ -22,22 +56,17 @@ export default function Home(props) {
         <link rel="icon" href="/favicon-32x32.png" />
       </Head>
 
+      <p>{user ? `Hello ${user.displayName}` : "Not Signed In"}</p>
+
       <main>
         <h1>Organizing Comments</h1>
 
+        <button onClick={signInHandler}>Sign in with Github</button>
+        <button onClick={signOutHandler}>Sign Out</button>
+
         {Object.entries(commentList).map(([key, value]) => (
           <div key={key}>
-            <h2>This is a Comment from {value.user}.</h2>
-            {Object.entries(value.replies).map(([key, value]) => (
-              <div key={key}>
-                <h4>This is a Reply from {value.user}.</h4>
-                {Object.entries(value.subreplies).map(([key, value]) => (
-                  <div key={key}>
-                    <h6>This is a Subreply from {value.user}.</h6>
-                  </div>
-                ))}
-              </div>
-            ))}
+            <CommentItem id={key} comment={value} users={userList} />
           </div>
         ))}
       </main>
@@ -50,6 +79,7 @@ export default function Home(props) {
 export async function getServerSideProps() {
   const comments = {};
   const replyObj = {};
+  const users = {};
 
   try {
     const res = await getDocs(db.comments);
@@ -100,7 +130,19 @@ export async function getServerSideProps() {
     comments[cId].replies = reps;
   }
 
+  try {
+    const res = await getDocs(db.users);
+    res.forEach((doc) => {
+      const id = doc.id;
+      const object = doc.data();
+      users[id] = object;
+    });
+    console.log("Successfully Loaded Subreplies");
+  } catch (error) {
+    console.error("Error Loading Subreplies: ", error);
+  }
+
   return {
-    props: { comments },
+    props: { comments, users },
   };
 }
