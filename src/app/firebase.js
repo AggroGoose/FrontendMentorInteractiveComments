@@ -14,7 +14,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-console.log(app);
 const db = getFirestore(app);
 const auth = getAuth();
 const ghProvider = new GithubAuthProvider();

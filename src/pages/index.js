@@ -4,14 +4,17 @@ import CommentItem from "../components/Comments/CommentItem";
 import db from "../app/firebase";
 import { doc, getDocs, setDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useEffect, useState } from "react";
-import { signOut, getAuth } from "firebase/auth";
+import { useEffect, useState, useContext } from "react";
+import { getAuth } from "firebase/auth";
+import { UserUpdateContext } from "../app/userContext";
+import HeaderNav from "../components/UI/HeaderNav";
 
 export default function Home(props) {
   const [commentList, setCommentList] = useState({});
   const [userList, setUserList] = useState({});
   const auth = getAuth();
   const [user] = useAuthState(auth);
+  const updateUser = useContext(UserUpdateContext);
 
   useEffect(() => {
     setCommentList(props.comments);
@@ -20,49 +23,43 @@ export default function Home(props) {
 
   useEffect(() => {
     const newUser = {};
-    if (!user) return;
+    if (!user) {
+      updateUser({ type: "LOGOUT" });
+      return;
+    }
     const id = user.uid;
     if (!userList[id]) {
       newUser[id] = {
         display: user.displayName,
         picture: user.photoURL,
-        commentVotes: null,
-        replyVotes: null,
-        subreplyVotes: null,
+        commentReacts: null,
+        replyReacts: null,
+        subreplyReacts: null,
       };
-      const newRef = doc(db.users, id);
-      setDoc(newRef, newUser[id]).then(
+      setDoc(doc(db.users, id), newUser[id]).then(
         setUserList(Object.assign(userList, newUser))
       );
     }
+
+    updateUser({
+      type: "LOGIN",
+      user: {
+        userID: id,
+        ...userList[id],
+      },
+    });
   }, [user]);
 
-  const signInHandler = () => {
-    db.signInWithGithub();
-  };
-
-  const signOutHandler = () => {
-    signOut(auth);
-  };
-
   return (
-    <div>
+    <>
       <Head>
-        <title>Interactive Comments</title>
-        <meta
-          name="description"
-          content="Comment Project by AggroGoose for Frontend Mentor"
-        />
-        <link rel="icon" href="/favicon-32x32.png" />
+        <Head>
+          <title>Interactive Comments</title>
+        </Head>
       </Head>
-
-      <p>{user ? `Hello ${user.displayName}` : "Not Signed In"}</p>
-
       <main>
+        <HeaderNav />
         <h1>Organizing Comments</h1>
-
-        <button onClick={signInHandler}>Sign in with Github</button>
-        <button onClick={signOutHandler}>Sign Out</button>
 
         {Object.entries(commentList).map(([key, value]) => (
           <div key={key}>
@@ -72,7 +69,7 @@ export default function Home(props) {
       </main>
 
       <Footer />
-    </div>
+    </>
   );
 }
 
@@ -81,47 +78,50 @@ export async function getServerSideProps() {
   const replyObj = {};
   const users = {};
 
-  try {
-    const res = await getDocs(db.comments);
-    res.forEach((doc) => {
-      const id = doc.id;
-      const object = doc.data();
-      object.createdAt = object.createdAt.toMillis();
-      comments[id] = object;
+  getDocs(db.comments)
+    .then((res) => {
+      res.forEach((doc) => {
+        const id = doc.id;
+        const object = doc.data();
+        object.createdAt = object.createdAt.toMillis();
+        comments[id] = object;
+      });
+      console.log("Successfully Loaded Comments");
+    })
+    .catch((error) => {
+      console.error("Error Loading Comments: ", error);
     });
-    console.log("Successfully Loaded Comments");
-  } catch (error) {
-    console.error("Error Loading Comments: ", error);
-  }
 
-  try {
-    const res = await getDocs(db.replies);
-    res.forEach((doc) => {
-      const id = doc.id;
-      const object = doc.data();
-      object.createdAt = object.createdAt.toMillis();
-      replyObj[id] = object;
+  getDocs(db.replies)
+    .then((res) => {
+      res.forEach((doc) => {
+        const id = doc.id;
+        const object = doc.data();
+        object.createdAt = object.createdAt.toMillis();
+        replyObj[id] = object;
+      });
+      console.log("Successfully Loaded Replies");
+    })
+    .catch((error) => {
+      console.error("Error Loading Replies: ", error);
     });
-    console.log("Successfully Loaded Replies");
-  } catch (error) {
-    console.error("Error Loading Comments: ", error);
-  }
 
-  try {
-    const res = await getDocs(db.subreplies);
-    res.forEach((doc) => {
-      const id = doc.id;
-      const object = doc.data();
-      const tar = object.forReply;
-      const subs = replyObj[tar].subreplies || {};
-      object.createdAt = object.createdAt.toMillis();
-      subs[id] = object;
-      replyObj[tar].subreplies = subs;
+  getDocs(db.subreplies)
+    .then((res) => {
+      res.forEach((doc) => {
+        const id = doc.id;
+        const object = doc.data();
+        const tar = object.forReply;
+        const subs = replyObj[tar].subreplies || {};
+        object.createdAt = object.createdAt.toMillis();
+        subs[id] = object;
+        replyObj[tar].subreplies = subs;
+      });
+      console.log("Successfully Loaded Subreplies");
+    })
+    .catch((error) => {
+      console.error("Error Loading Subreplies: ", error);
     });
-    console.log("Successfully Loaded Subreplies");
-  } catch (error) {
-    console.error("Error Loading Subreplies: ", error);
-  }
 
   for (const [key, value] of Object.entries(replyObj)) {
     const cId = value.forComment;
@@ -130,17 +130,18 @@ export async function getServerSideProps() {
     comments[cId].replies = reps;
   }
 
-  try {
-    const res = await getDocs(db.users);
-    res.forEach((doc) => {
-      const id = doc.id;
-      const object = doc.data();
-      users[id] = object;
+  getDocs(db.users)
+    .then((res) => {
+      res.forEach((doc) => {
+        const id = doc.id;
+        const object = doc.data();
+        users[id] = object;
+      });
+      console.log("Successfully Loaded Users");
+    })
+    .catch((error) => {
+      console.error("Error Loading Users: ", error);
     });
-    console.log("Successfully Loaded Subreplies");
-  } catch (error) {
-    console.error("Error Loading Subreplies: ", error);
-  }
 
   return {
     props: { comments, users },
