@@ -4,20 +4,25 @@ import CommentItem from "../components/Comments/CommentItem";
 import db from "../app/firebase";
 import { doc, getDocs, setDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
-import { UserUpdateContext } from "../app/userContext";
+import { useUpdateUser } from "../app/UserContext";
 import HeaderNav from "../components/UI/HeaderNav";
+import { useCommentList, useUpdateComments } from "../app/CommentContext";
 
 export default function Home(props) {
-  const [commentList, setCommentList] = useState({});
   const [userList, setUserList] = useState({});
   const auth = getAuth();
   const [user] = useAuthState(auth);
-  const updateUser = useContext(UserUpdateContext);
+  const updateUser = useUpdateUser();
+  const setComments = useUpdateComments();
+  const commentList = useCommentList();
 
   useEffect(() => {
-    setCommentList(props.comments);
+    setComments({
+      type: "SET",
+      comments: props.comments,
+    });
     setUserList(props.users);
   }, []);
 
@@ -61,11 +66,15 @@ export default function Home(props) {
         <HeaderNav />
         <h1>Organizing Comments</h1>
 
-        {Object.entries(commentList).map(([key, value]) => (
-          <div key={key}>
-            <CommentItem id={key} comment={value} users={userList} />
-          </div>
-        ))}
+        {commentList ? (
+          Object.entries(commentList).map(([key]) => (
+            <div key={key}>
+              <CommentItem id={key} users={userList} />
+            </div>
+          ))
+        ) : (
+          <p>No Comments Available!</p>
+        )}
       </main>
 
       <Footer />
@@ -78,50 +87,47 @@ export async function getServerSideProps() {
   const replyObj = {};
   const users = {};
 
-  getDocs(db.comments)
-    .then((res) => {
-      res.forEach((doc) => {
-        const id = doc.id;
-        const object = doc.data();
-        object.createdAt = object.createdAt.toMillis();
-        comments[id] = object;
-      });
-      console.log("Successfully Loaded Comments");
-    })
-    .catch((error) => {
-      console.error("Error Loading Comments: ", error);
+  try {
+    const res = await getDocs(db.comments);
+    res.forEach((doc) => {
+      const id = doc.id;
+      const object = doc.data();
+      object.createdAt = object.createdAt.toMillis();
+      comments[id] = object;
     });
+    console.log("Successfully Loaded Comments");
+  } catch (error) {
+    console.error("Error Loading Comments: ", error);
+  }
 
-  getDocs(db.replies)
-    .then((res) => {
-      res.forEach((doc) => {
-        const id = doc.id;
-        const object = doc.data();
-        object.createdAt = object.createdAt.toMillis();
-        replyObj[id] = object;
-      });
-      console.log("Successfully Loaded Replies");
-    })
-    .catch((error) => {
-      console.error("Error Loading Replies: ", error);
+  try {
+    const res = await getDocs(db.replies);
+    res.forEach((doc) => {
+      const id = doc.id;
+      const object = doc.data();
+      object.createdAt = object.createdAt.toMillis();
+      replyObj[id] = object;
     });
+    console.log("Successfully Loaded Replies");
+  } catch (error) {
+    console.error("Error Loading Replies: ", error);
+  }
 
-  getDocs(db.subreplies)
-    .then((res) => {
-      res.forEach((doc) => {
-        const id = doc.id;
-        const object = doc.data();
-        const tar = object.forReply;
-        const subs = replyObj[tar].subreplies || {};
-        object.createdAt = object.createdAt.toMillis();
-        subs[id] = object;
-        replyObj[tar].subreplies = subs;
-      });
-      console.log("Successfully Loaded Subreplies");
-    })
-    .catch((error) => {
-      console.error("Error Loading Subreplies: ", error);
+  try {
+    const res = await getDocs(db.subreplies);
+    res.forEach((doc) => {
+      const id = doc.id;
+      const object = doc.data();
+      const tar = object.forReply;
+      const subs = replyObj[tar].subreplies || {};
+      object.createdAt = object.createdAt.toMillis();
+      subs[id] = object;
+      replyObj[tar].subreplies = subs;
     });
+    console.log("Successfully Loaded Subreplies");
+  } catch (error) {
+    console.error("Error Loading Subreplies: ", error);
+  }
 
   for (const [key, value] of Object.entries(replyObj)) {
     const cId = value.forComment;
@@ -130,18 +136,21 @@ export async function getServerSideProps() {
     comments[cId].replies = reps;
   }
 
-  getDocs(db.users)
-    .then((res) => {
-      res.forEach((doc) => {
-        const id = doc.id;
-        const object = doc.data();
-        users[id] = object;
-      });
-      console.log("Successfully Loaded Users");
-    })
-    .catch((error) => {
-      console.error("Error Loading Users: ", error);
+  try {
+    const res = await getDocs(db.users);
+    res.forEach((doc) => {
+      const id = doc.id;
+      const object = doc.data();
+      users[id] = object;
+
+      !users[id].commentReacts ? (users[id].commentReacts = {}) : "";
+      !users[id].commentReacts ? (users[id].replyReacts = {}) : "";
+      !users[id].commentReacts ? (users[id].subreplyReacts = {}) : "";
     });
+    console.log("Successfully Loaded Users");
+  } catch (error) {
+    console.error("Error Loading Users: ", error);
+  }
 
   return {
     props: { comments, users },

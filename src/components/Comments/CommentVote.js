@@ -1,60 +1,82 @@
 import { useEffect, useState } from "react";
 import { updateDoc, doc } from "firebase/firestore";
+import { IconPlus, IconMinus } from "../UI/Icons";
+import { useUser, useUpdateUser } from "../../app/UserContext";
+import { useUpdateComments } from "../../app/CommentContext";
 import db from "../../app/firebase";
 
-export default function CommentVote({ comment, userLiked, id }) {
-  const [upvotes, setUpvotes] = useState(comment.upvotes);
-  const [downvotes, setDownvotes] = useState(comment.downvotes);
-  const [voteTotal, setVoteTotal] = useState(upvotes - downvotes);
+export default function CommentVote({ comment, id }) {
+  const [votes, setVotes] = useState(comment.votes);
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
 
-  useEffect(() => {
-    setVoteTotal(upvotes - downvotes);
-  }, [upvotes, downvotes]);
+  const user = useUser();
+  const updateUser = useUpdateUser();
+  const updateComments = useUpdateComments();
 
   useEffect(() => {
-    if (userLiked == "liked") {
-      setLiked(true);
+    if (id in user.commentReacts) {
+      if (user.commentReacts[id] == "like") {
+        setLiked(true);
+        setDisliked(false);
+      } else if (user.commentReacts[id] == "dislike") {
+        setDisliked(true);
+        setLiked(false);
+      }
     }
-    if (userLiked == "disliked") {
-      setDisliked(true);
-    }
-  }, []);
+  }, [user]);
 
-  const upvoteHandler = () => {
+  const upvoteHandler = async () => {
     if (liked) return;
-    if (disliked) setDownvotes(downvotes - 1);
+    if (!user.loggedIn) return;
+    updateUser({ type: "COMMENT_REACT", id, react: "like" });
 
+    try {
+      await updateDoc(doc(db.users, user.userID), {
+        commentReacts: user.commentReacts,
+      });
+    } catch (error) {
+      console.error("Error submitting vote: ", error);
+      return;
+    }
+
+    if (disliked) setVotes(votes + 1);
+    setVotes(votes + 1);
     setLiked(true);
     setDisliked(false);
-    setUpvotes(upvotes + 1);
-    updateDoc(doc(db.users, id), {});
   };
 
-  const downvoteHandler = () => {
+  const downvoteHandler = async () => {
     if (disliked) return;
-    if (liked) setUpvotes(upvotes - 1);
-    setDisliked(true);
+    if (!user.loggedIn) return;
+    updateUser({ type: "COMMENT_REACT", id, react: "dislike" });
+
+    try {
+      await updateDoc(doc(db.users, user.userID), {
+        commentReacts: user.commentReacts,
+      });
+    } catch (error) {
+      console.error("Error submitting vote: ", error);
+      return;
+    }
+
+    if (liked) setVotes(votes - 1);
+    setVotes(votes - 1);
     setLiked(false);
-    setDownvotes(downvotes + 1);
+    setDisliked(true);
   };
 
   return (
-    <div className={liked}>
-      <div
-        className={`comment__vote--plus ${liked && "comment_vote--active"}`}
+    <div className="comment__vote">
+      <IconPlus
+        className={`comment__vote--plus ${liked ? "vote--active" : ""}`}
         onClick={upvoteHandler}
-      >
-        <Image src="/icons/icon-plus.svg" height={16} width={16} />
-      </div>
-      <p className={disliked}>{voteTotal}</p>
-      <div
-        className={`comment__vote--minus ${disliked && "comment_vote--active"}`}
+      />
+      <p className="comment__vote--total">{votes}</p>
+      <IconMinus
+        className={`comment__vote--minus ${disliked ? "vote--active" : ""}`}
         onClick={downvoteHandler}
-      >
-        <Image src="/icons/icon-minus.svg" height={4} width={16} />
-      </div>
+      />
     </div>
   );
 }

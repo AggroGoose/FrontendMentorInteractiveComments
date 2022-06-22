@@ -1,4 +1,4 @@
-import React, { useContext, useReducer } from "react";
+import React, { useReducer } from "react";
 
 const userInitial = {
   loggedIn: false,
@@ -45,8 +45,15 @@ function reducer(state, action) {
   }
 }
 
-export const UserContext = React.createContext();
-export const UserUpdateContext = React.createContext();
+const UserContext = React.createContext();
+const UserUpdateContext = React.createContext();
+
+export function useUser() {
+  return React.useContext(UserContext);
+}
+export function useUpdateUser() {
+  return React.useContext(UserUpdateContext);
+}
 
 export function UserProvider({ children }) {
   const [user, dispatch] = useReducer(reducer, userInitial);

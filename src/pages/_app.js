@@ -1,10 +1,13 @@
 import "../styles/globals.scss";
-import { UserProvider } from "../app/userContext";
+import { UserProvider } from "../app/UserContext";
+import { CommentProvider } from "../app/CommentContext";
 
 function MyApp({ Component, pageProps }) {
   return (
     <UserProvider>
-      <Component {...pageProps} />
+      <CommentProvider>
+        <Component {...pageProps} />
+      </CommentProvider>
     </UserProvider>
   );
 }

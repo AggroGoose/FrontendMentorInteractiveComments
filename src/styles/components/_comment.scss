@@ -27,9 +27,24 @@
 
     &--plus {
       grid-row: 1/2;
-      margin: auto;
+      display: flex;
+      align-content: center;
+      justify-content: center;
       pointer-events: all;
       cursor: pointer;
+      text-align: center;
+
+      svg {
+        fill: $blue-300;
+        width: 12px;
+        height: 12px;
+      }
+
+      &.vote--active svg {
+        fill: $blue-200;
+        width: 14px;
+        height: 14px;
+      }
     }
 
     &--total {
@@ -43,10 +58,22 @@
       grid-row: 3/4;
       margin: auto;
       display: flex;
-      align-items: center;
-      justify-items: center;
+      align-content: center;
+      justify-content: center;
       pointer-events: all;
       cursor: pointer;
+
+      svg {
+        fill: $blue-300;
+        width: 12px;
+        height: 4px;
+      }
+
+      &.vote--active svg {
+        fill: $blue-200;
+        width: 14px;
+        height: 4px;
+      }
     }
   }
 
@@ -60,17 +87,18 @@
   &__topdiv {
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
 
   &__topleft {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
   }
 
   &__image {
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
   }
 
   &__user {
@@ -79,6 +107,60 @@
 
   &__date {
     color: $gray-200;
+  }
+  &__topreply {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    color: $blue-200;
+    gap: 6px;
+    font-weight: 700;
+    pointer-events: all;
+    cursor: pointer;
+
+    &--icon {
+      fill: $blue-200;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__topedit {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    gap: 16px;
+    font-weight: 700;
+    pointer-events: all;
+    cursor: pointer;
+
+    &--edit {
+      display: flex;
+      align-items: center;
+      justify-items: center;
+      color: $blue-200;
+      gap: 6px;
+      font-weight: 700;
+
+      &icon {
+        fill: $blue-200;
+      }
+    }
+
+    &--delete {
+      display: flex;
+      align-items: center;
+      justify-items: center;
+      color: $red-200;
+      gap: 6px;
+      font-weight: 700;
+
+      &icon {
+        fill: $red-200;
+      }
+    }
   }
 }
 

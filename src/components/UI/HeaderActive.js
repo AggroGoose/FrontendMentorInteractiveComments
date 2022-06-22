@@ -8,8 +8,6 @@ export default function HeaderActive({ user }) {
 
   const iStyle = {
     borderRadius: "100%",
-    height: "35px",
-    width: "35px",
   };
 
   return (
