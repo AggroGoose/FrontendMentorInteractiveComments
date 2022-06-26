@@ -1,35 +1,38 @@
-import Head from "next/head";
-import Footer from "../components/UI/Footer";
-import CommentItem from "../components/Comments/CommentItem";
-import db from "../app/firebase";
 import { doc, getDocs, setDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
-import { useUpdateUser } from "../app/UserContext";
+import { userActions } from "../app/store/user-slice";
+import { commentActions } from "../app/store/comment-slice";
+import { replyActions } from "../app/store/reply-slice";
+import { subreplyActions } from "../app/store/subreply-slice";
+import Head from "next/head";
+
+import Footer from "../components/UI/Footer";
+import ResponseItem from "../components/Comments/ResponseItem";
+import db from "../app/firebase";
 import HeaderNav from "../components/UI/HeaderNav";
-import { useCommentList, useUpdateComments } from "../app/CommentContext";
+import NewResponse from "../components/Comments/NewResponse";
 
 export default function Home(props) {
   const [userList, setUserList] = useState({});
   const auth = getAuth();
   const [user] = useAuthState(auth);
-  const updateUser = useUpdateUser();
-  const setComments = useUpdateComments();
-  const commentList = useCommentList();
+  const commentList = useSelector((state) => state.comment.list);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setComments({
-      type: "SET",
-      comments: props.comments,
-    });
+    dispatch(commentActions.setComments(props.comments));
+    dispatch(replyActions.setReplies(props.replies));
+    dispatch(subreplyActions.setSubReplies(props.subreplies));
     setUserList(props.users);
   }, []);
 
   useEffect(() => {
     const newUser = {};
     if (!user) {
-      updateUser({ type: "LOGOUT" });
+      dispatch(userActions.userLogout());
       return;
     }
     const id = user.uid;
@@ -37,22 +40,16 @@ export default function Home(props) {
       newUser[id] = {
         display: user.displayName,
         picture: user.photoURL,
-        commentReacts: null,
-        replyReacts: null,
-        subreplyReacts: null,
+        commentReacts: {},
+        replyReacts: {},
+        subreplyReacts: {},
       };
       setDoc(doc(db.users, id), newUser[id]).then(
         setUserList(Object.assign(userList, newUser))
       );
     }
 
-    updateUser({
-      type: "LOGIN",
-      user: {
-        userID: id,
-        ...userList[id],
-      },
-    });
+    dispatch(userActions.userLogin({ userID: id, ...userList[id] }));
   }, [user]);
 
   return (
@@ -67,14 +64,20 @@ export default function Home(props) {
         <h1>Organizing Comments</h1>
 
         {commentList ? (
-          Object.entries(commentList).map(([key]) => (
-            <div key={key}>
-              <CommentItem id={key} users={userList} />
+          commentList.map((value, index) => (
+            <div key={value.id}>
+              <ResponseItem
+                index={index}
+                users={userList}
+                id={value.id}
+                format="comment"
+              />
             </div>
           ))
         ) : (
           <p>No Comments Available!</p>
         )}
+        <NewResponse format="comment" type="new" />
       </main>
 
       <Footer />
@@ -83,17 +86,17 @@ export default function Home(props) {
 }
 
 export async function getServerSideProps() {
-  const comments = {};
-  const replyObj = {};
+  const comments = [];
+  const replies = [];
+  const subreplies = [];
   const users = {};
 
   try {
     const res = await getDocs(db.comments);
     res.forEach((doc) => {
-      const id = doc.id;
-      const object = doc.data();
+      const object = { id: doc.id, ...doc.data() };
       object.createdAt = object.createdAt.toMillis();
-      comments[id] = object;
+      comments.push(object);
     });
     console.log("Successfully Loaded Comments");
   } catch (error) {
@@ -103,10 +106,9 @@ export async function getServerSideProps() {
   try {
     const res = await getDocs(db.replies);
     res.forEach((doc) => {
-      const id = doc.id;
-      const object = doc.data();
+      const object = { id: doc.id, ...doc.data() };
       object.createdAt = object.createdAt.toMillis();
-      replyObj[id] = object;
+      replies.push(object);
     });
     console.log("Successfully Loaded Replies");
   } catch (error) {
@@ -116,24 +118,13 @@ export async function getServerSideProps() {
   try {
     const res = await getDocs(db.subreplies);
     res.forEach((doc) => {
-      const id = doc.id;
-      const object = doc.data();
-      const tar = object.forReply;
-      const subs = replyObj[tar].subreplies || {};
+      const object = { id: doc.id, ...doc.data() };
       object.createdAt = object.createdAt.toMillis();
-      subs[id] = object;
-      replyObj[tar].subreplies = subs;
+      subreplies.push(object);
     });
     console.log("Successfully Loaded Subreplies");
   } catch (error) {
     console.error("Error Loading Subreplies: ", error);
-  }
-
-  for (const [key, value] of Object.entries(replyObj)) {
-    const cId = value.forComment;
-    const reps = comments[cId].replies || {};
-    reps[key] = value;
-    comments[cId].replies = reps;
   }
 
   try {
@@ -153,6 +144,6 @@ export async function getServerSideProps() {
   }
 
   return {
-    props: { comments, users },
+    props: { comments, replies, subreplies, users },
   };
 }

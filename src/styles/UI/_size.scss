@@ -1,0 +1,29 @@
+.size-comment {
+  width: 95vw;
+  margin: 8px auto;
+}
+
+.size-reply {
+  width: 85vw;
+  margin: 8px auto;
+}
+
+.size-subreply {
+  width: 75vw;
+  margin: 8px auto;
+}
+
+@media (min-width: 890px) {
+  .size-comment {
+    width: 800px;
+    margin: 16px auto;
+  }
+  .size-reply {
+    width: 725px;
+    margin: 16px auto;
+  }
+  .size-subreply {
+    width: 650px;
+    margin: 16px auto;
+  }
+}

@@ -1,0 +1,18 @@
+@use "../variables/colors" as *;
+
+.btn {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: none;
+
+  &--submit {
+    background-color: $blue-200;
+    color: white;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+
+    &:hover {
+      background-color: $blue-300;
+    }
+  }
+}

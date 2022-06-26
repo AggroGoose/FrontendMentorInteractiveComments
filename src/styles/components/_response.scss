@@ -1,18 +1,22 @@
 @use "../variables/colors" as *;
 
-.comment {
+.response {
+  // ========== CommentItem.js ==========
+
   &__container {
     display: grid;
     width: 90%;
-    grid-template-columns: 50px auto;
+    grid-template-columns: 50px 1fr;
     gap: 24px;
     justify-content: center;
-    align-items: center;
+    align-items: start;
 
     p {
       margin: 0;
     }
   }
+
+  // ========== CommentVote.js ==========
 
   &__vote {
     grid-column: 1/2;
@@ -77,12 +81,40 @@
     }
   }
 
+  // ========== CommentMain.js ==========
+
   &__maindiv {
     grid-column: 2/3;
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
+
+  // ========== Content Area of CommentMain.js =========
+
+  &__content {
+    width: 100%;
+  }
+
+  &__editor {
+    width: 100%;
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+
+    &--field {
+      resize: none;
+      overflow: auto;
+      border-radius: 10px;
+    }
+
+    &--submit {
+      align-self: flex-end;
+      width: max-content;
+    }
+  }
+
+  // ========== Top Bar of CommentMain.js =========
 
   &__topdiv {
     display: flex;
@@ -108,6 +140,7 @@
   &__date {
     color: $gray-200;
   }
+
   &__topreply {
     display: flex;
     align-items: center;
@@ -117,6 +150,14 @@
     font-weight: 700;
     pointer-events: all;
     cursor: pointer;
+
+    &:hover {
+      color: $blue-300;
+
+      svg {
+        fill: $blue-300;
+      }
+    }
 
     &--icon {
       fill: $blue-200;
@@ -144,6 +185,14 @@
       gap: 6px;
       font-weight: 700;
 
+      &:hover {
+        color: $blue-300;
+
+        svg {
+          fill: $blue-300;
+        }
+      }
+
       &icon {
         fill: $blue-200;
       }
@@ -157,16 +206,17 @@
       gap: 6px;
       font-weight: 700;
 
+      &:hover {
+        color: $red-300;
+
+        svg {
+          fill: $red-300;
+        }
+      }
+
       &icon {
         fill: $red-200;
       }
     }
-  }
-}
-
-@media (min-width: 890px) {
-  .comment {
-    width: 800px;
-    margin: 16px auto;
   }
 }

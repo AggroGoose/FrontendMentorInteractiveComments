@@ -3,6 +3,10 @@
 @use "specialized/initialize";
 @use "typography/fonts";
 @use "components/footer";
-@use "components/comment";
+@use "components/response";
 @use "components/header";
+@use "components/newresponse";
+@use "components/listitems";
 @use "UI/card";
+@use "UI/button";
+@use "UI/size";

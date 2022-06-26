@@ -1,0 +1,29 @@
+@use "../variables/colors" as *;
+
+.listitem {
+  display: grid;
+  grid-template-columns: 1fr 1fr min-content;
+  padding: 0;
+  margin: 16px auto;
+
+  &__spacer1 {
+    grid-column: 1/2;
+    border-right: 2px solid #ccc;
+    margin: 16px;
+  }
+  &__spacer2 {
+    grid-column: 2/3;
+  }
+
+  &__content {
+    grid-column: 3/4;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

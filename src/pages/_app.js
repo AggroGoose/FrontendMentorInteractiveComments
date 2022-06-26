@@ -1,14 +1,12 @@
 import "../styles/globals.scss";
-import { UserProvider } from "../app/UserContext";
-import { CommentProvider } from "../app/CommentContext";
+import { Provider } from "react-redux";
+import store from "../app/store/index";
 
 function MyApp({ Component, pageProps }) {
   return (
-    <UserProvider>
-      <CommentProvider>
-        <Component {...pageProps} />
-      </CommentProvider>
-    </UserProvider>
+    <Provider store={store}>
+      <Component {...pageProps} />
+    </Provider>
   );
 }
 
