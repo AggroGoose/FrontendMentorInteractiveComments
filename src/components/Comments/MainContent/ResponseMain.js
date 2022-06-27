@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import ResponseTop from "./ResponseTop";
 import ResponseContent from "./ResponseContent";
 
-export default function ResponseMain({ users, index, format }) {
+export default function ResponseMain({ users, index, format, togReply }) {
   const [editActive, setEditActive] = useState(false);
   const [item, setItem] = useState({});
   const [userPost, setUserPost] = useState(false);
@@ -45,6 +45,7 @@ export default function ResponseMain({ users, index, format }) {
         <>
           <ResponseTop
             togEdit={togEdit}
+            togReply={togReply}
             users={users}
             item={item}
             userPost={userPost}

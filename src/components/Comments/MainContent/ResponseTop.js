@@ -1,11 +1,16 @@
 import { IconDelete, IconEdit, IconReply } from "../../UI/Icons";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import Image from "next/image";
 
 import timeCalculator from "../../../app/timeCalculator";
 
-export default function ResponseTop({ togEdit, item, users, userPost }) {
+export default function ResponseTop({
+  togEdit,
+  item,
+  users,
+  userPost,
+  togReply,
+}) {
   const [dateOutput, setDateOutput] = useState("");
   const responder = users[item.user];
 
@@ -35,7 +40,11 @@ export default function ResponseTop({ togEdit, item, users, userPost }) {
       </div>
       <div className="response__topright">
         {/* ==== These component functions are below ==== */}
-        {userPost ? <ResponseTopEdit togEdit={togEdit} /> : <ResponseReply />}
+        {userPost ? (
+          <ResponseTopEdit togEdit={togEdit} />
+        ) : (
+          <ResponseReply togReply={togReply} />
+        )}
       </div>
     </div>
   );
@@ -45,9 +54,9 @@ export default function ResponseTop({ togEdit, item, users, userPost }) {
 // ################# Reflexive Top Bar Functions #################
 // ###############################################################
 
-function ResponseReply() {
+function ResponseReply({ togReply }) {
   return (
-    <div className="response__topreply">
+    <div className="response__topreply" onClick={togReply}>
       <IconReply className="response__topreply--icon" />
       <p className="response__topreply--text">Reply</p>
     </div>

@@ -34,7 +34,7 @@ export const replyActions = replySlice.actions;
 export default replySlice.reducer;
 
 function dateSort(a, b) {
-  if (a.createdAt < b.createdAt) return 1;
-  if (a.createdAt > b.createdAt) return -1;
+  if (a.createdAt > b.createdAt) return 1;
+  if (a.createdAt < b.createdAt) return -1;
   return 0;
 }

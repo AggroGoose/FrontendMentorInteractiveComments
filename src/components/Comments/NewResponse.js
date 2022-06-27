@@ -4,30 +4,44 @@ import { replyActions } from "../../app/store/reply-slice";
 import { subreplyActions } from "../../app/store/subreply-slice";
 import db from "../../app/firebase";
 import { addDoc, Timestamp } from "firebase/firestore";
+import { useEffect, useState } from "react";
 
-export default function NewResponse({ format, commentID, replyID, type }) {
+export default function NewResponse({ format, id, type, togReply }) {
+  const [formatRef, setformatRef] = useState({
+    store: commentActions,
+    document: db.comments,
+    newComment: {
+      votes: 0,
+    },
+  });
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    setformatRef(formatter(format, type, db, id));
+  }, []);
+
   async function responseHandler(e) {
     e.preventDefault();
+
+    const { store, document, newComment } = formatRef;
+
     const timeStamp = Timestamp.now();
-    const newComment = {
-      user: user.userID,
-      createdAt: timeStamp,
-      content: e.target.responseField.value,
-      votes: 0,
-    };
+    newComment.user = user.userID;
+    newComment.createdAt = timeStamp;
+    newComment.content = e.target.responseField.value;
 
     try {
-      const res = await addDoc(db.comments, newComment);
+      const res = await addDoc(document, newComment);
       newComment.id = res.id;
       newComment.createdAt = newComment.createdAt.toMillis();
-      dispatch(commentActions.addItem(newComment));
+      dispatch(store.addItem(newComment));
     } catch (error) {
       console.error(`There was an error adding this comment`, error);
       return;
     }
+
+    if (togReply) togReply();
 
     e.target.responseField.value = "";
   }
@@ -58,4 +72,42 @@ function SubmitButton({ type }) {
   return (
     <button className="newresponse__form--submit btn btn--submit">REPLY</button>
   );
+}
+
+function formatter(format, type, db, id) {
+  if (type === "new")
+    return {
+      store: commentActions,
+      document: db.comments,
+      newComment: {
+        votes: 0,
+      },
+    };
+  if (format === "comment")
+    return {
+      store: replyActions,
+      document: db.replies,
+      newComment: {
+        votes: 0,
+        forComment: id,
+      },
+    };
+  if (format === "reply")
+    return {
+      store: subreplyActions,
+      document: db.subreplies,
+      newComment: {
+        votes: 0,
+        forReply: id,
+      },
+    };
+  if (format === "subreply")
+    return {
+      store: subreplyActions,
+      document: db.subreplies,
+      newComment: {
+        votes: 0,
+        forReply: id,
+      },
+    };
 }
