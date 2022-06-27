@@ -14,6 +14,7 @@ import ResponseItem from "../components/Comments/ResponseItem";
 import db from "../app/firebase";
 import HeaderNav from "../components/UI/HeaderNav";
 import NewResponse from "../components/Comments/NewResponse";
+import DeleteModal from "../components/UI/DeleteModal";
 
 export default function Home(props) {
   const [userList, setUserList] = useState({});
@@ -21,6 +22,7 @@ export default function Home(props) {
   const [user] = useAuthState(auth);
   const commentList = useSelector((state) => state.comment.list);
   const dispatch = useDispatch();
+  const showModal = useSelector((state) => state.ui.modalIsVisible);
 
   useEffect(() => {
     dispatch(commentActions.setComments(props.comments));
@@ -36,20 +38,21 @@ export default function Home(props) {
       return;
     }
     const id = user.uid;
-    if (!userList[id]) {
-      newUser[id] = {
-        display: user.displayName,
-        picture: user.photoURL,
-        commentReacts: {},
-        replyReacts: {},
-        subreplyReacts: {},
-      };
-      setDoc(doc(db.users, id), newUser[id]).then(
-        setUserList(Object.assign(userList, newUser))
-      );
+    if (Object.entries(userList).length !== 0) {
+      if (!userList[id]) {
+        newUser[id] = {
+          display: user.displayName,
+          picture: user.photoURL,
+          commentReacts: {},
+          replyReacts: {},
+          subreplyReacts: {},
+        };
+        setDoc(doc(db.users, id), newUser[id]).then(
+          setUserList(Object.assign(userList, newUser))
+        );
+      }
+      dispatch(userActions.userLogin({ userID: id, ...userList[id] }));
     }
-
-    dispatch(userActions.userLogin({ userID: id, ...userList[id] }));
   }, [user]);
 
   return (
@@ -59,9 +62,9 @@ export default function Home(props) {
           <title>Interactive Comments</title>
         </Head>
       </Head>
-      <main>
-        <HeaderNav />
-        <h1>Organizing Comments</h1>
+      <HeaderNav />
+      <main className={showModal ? "modal__body" : ""}>
+        {showModal && <DeleteModal />}
 
         {commentList ? (
           commentList.map((value, index) => (
@@ -80,7 +83,7 @@ export default function Home(props) {
         <NewResponse format="comment" type="new" />
       </main>
 
-      <Footer />
+      {!showModal && <Footer />}
     </>
   );
 }

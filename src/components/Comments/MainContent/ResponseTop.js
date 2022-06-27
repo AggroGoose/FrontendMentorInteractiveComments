@@ -1,5 +1,7 @@
 import { IconDelete, IconEdit, IconReply } from "../../UI/Icons";
 import { useEffect, useState } from "react";
+import { uiActions } from "../../../app/store/ui-slice";
+import { useDispatch } from "react-redux";
 import Image from "next/image";
 
 import timeCalculator from "../../../app/timeCalculator";
@@ -10,6 +12,7 @@ export default function ResponseTop({
   users,
   userPost,
   togReply,
+  format,
 }) {
   const [dateOutput, setDateOutput] = useState("");
   const responder = users[item.user];
@@ -41,7 +44,7 @@ export default function ResponseTop({
       <div className="response__topright">
         {/* ==== These component functions are below ==== */}
         {userPost ? (
-          <ResponseTopEdit togEdit={togEdit} />
+          <ResponseTopEdit togEdit={togEdit} format={format} id={item.id} />
         ) : (
           <ResponseReply togReply={togReply} />
         )}
@@ -63,10 +66,18 @@ function ResponseReply({ togReply }) {
   );
 }
 
-function ResponseTopEdit({ togEdit }) {
+function ResponseTopEdit({ togEdit, format, id }) {
+  const dispatch = useDispatch();
+  const type = format;
+
+  function togDelete() {
+    console.log(type, id);
+    dispatch(uiActions.queue({ type, id }));
+  }
+
   return (
     <div className="response__topedit">
-      <div className="response__topedit--delete">
+      <div className="response__topedit--delete" onClick={togDelete}>
         <IconDelete className="response__topedit--deleteicon" />
         <p className="response__topedit--deletetext">Delete</p>
       </div>

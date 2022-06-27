@@ -15,4 +15,26 @@
       background-color: $blue-300;
     }
   }
+  &--cancel {
+    background-color: $gray-100;
+    color: white;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    min-width: 145px;
+
+    &:hover {
+      background-color: $gray-200;
+    }
+  }
+  &--delete {
+    background-color: $red-200;
+    color: white;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    min-width: 145px;
+
+    &:hover {
+      background-color: $red-300;
+    }
+  }
 }

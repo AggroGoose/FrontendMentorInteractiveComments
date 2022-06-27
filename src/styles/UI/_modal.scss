@@ -1,0 +1,46 @@
+@use "../variables/colors" as *;
+
+.modal {
+  position: fixed;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &__body {
+    position: relative;
+    overflow: hidden;
+    height: 87vh;
+  }
+
+  &__background {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: $gray-100;
+    opacity: 0.8;
+    z-index: 5;
+    pointer-events: all;
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__header h2 {
+    margin: 0;
+    padding: 0;
+    font-weight: 500;
+  }
+
+  &__content p {
+    margin: 0;
+    color: $gray-100;
+  }
+}

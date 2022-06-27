@@ -46,6 +46,7 @@ export default function ResponseMain({ users, index, format, togReply }) {
           <ResponseTop
             togEdit={togEdit}
             togReply={togReply}
+            format={format}
             users={users}
             item={item}
             userPost={userPost}

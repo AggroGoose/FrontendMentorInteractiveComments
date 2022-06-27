@@ -34,9 +34,9 @@ export default function ResponseContent({
   );
 }
 
-// ###############################################################
-// ################# Reflexive Content Functions #################
-// ###############################################################
+// ###########################################################
+// ############### Reflexive Content Functions ###############
+// ###########################################################
 
 function PostContent({ content }) {
   return <p className="response__content">{content}</p>;
@@ -52,7 +52,6 @@ function UserResponseContent({
 }) {
   if (!editActive) return <p className="response__content">{content}</p>;
   //   formatIdentifier function is below.
-  const field = useRef(content);
   const dispatch = useDispatch();
 
   async function editHandler(e) {
@@ -86,9 +85,9 @@ function UserResponseContent({
   );
 }
 
-// ###############################################################
-// ################## formatIdentifier Function ##################
-// ###############################################################
+// ###########################################################
+// ################ formatIdentifier Function ################
+// ###########################################################
 
 function formatIdentifier(format, db) {
   const updater = {};

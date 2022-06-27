@@ -13,6 +13,11 @@
   margin: 8px auto;
 }
 
+.size-modal {
+  width: 60vw;
+  margin: auto;
+}
+
 @media (min-width: 890px) {
   .size-comment {
     width: 800px;
@@ -25,5 +30,9 @@
   .size-subreply {
     width: 650px;
     margin: 16px auto;
+  }
+  .size-modal {
+    width: 375px;
+    margin: auto;
   }
 }

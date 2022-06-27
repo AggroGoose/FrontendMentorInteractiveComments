@@ -7,6 +7,7 @@ import { addDoc, Timestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export default function NewResponse({ format, id, type, togReply }) {
+  const [disabled, setDisabled] = useState(true);
   const [formatRef, setformatRef] = useState({
     store: commentActions,
     document: db.comments,
@@ -20,6 +21,14 @@ export default function NewResponse({ format, id, type, togReply }) {
   useEffect(() => {
     setformatRef(formatter(format, type, db, id));
   }, []);
+
+  useEffect(() => {
+    if (user.userID) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [user]);
 
   async function responseHandler(e) {
     e.preventDefault();
@@ -48,29 +57,51 @@ export default function NewResponse({ format, id, type, togReply }) {
 
   return (
     <div className={`card newresponse size-${format}`}>
-      <img src={user.picture} className="newresponse__image" />
-      <form className="newresponse__form" onSubmit={responseHandler}>
-        <textarea
-          rows="5"
-          className="newresponse__form--field"
-          name="responseField"
-        />
-        <SubmitButton type={type} />
+      {user?.picture && (
+        <img src={user.picture} className="newresponse__image" />
+      )}
+      <form
+        className="newresponse__form"
+        onSubmit={responseHandler}
+        disabled={disabled}
+      >
+        <div className="newresponse__form--content">
+          {disabled && (
+            <p>
+              <i>Please sign in before posting.</i>
+            </p>
+          )}
+          <textarea
+            rows="5"
+            className="newresponse__form--field"
+            name="responseField"
+            disabled={disabled}
+          />
+        </div>
+        <SubmitButton type={type} disabled={disabled} />
       </form>
     </div>
   );
 }
 
-function SubmitButton({ type }) {
+function SubmitButton({ type, disabled }) {
   if (type == "new")
     return (
-      <button className="newresponse__form--submit btn btn--submit">
+      <button
+        className="newresponse__form--submit btn btn--submit"
+        disabled={disabled}
+      >
         SEND
       </button>
     );
 
   return (
-    <button className="newresponse__form--submit btn btn--submit">REPLY</button>
+    <button
+      className="newresponse__form--submit btn btn--submit"
+      disabled={disabled}
+    >
+      REPLY
+    </button>
   );
 }
 
