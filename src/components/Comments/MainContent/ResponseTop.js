@@ -23,7 +23,7 @@ export default function ResponseTop({
   }, []);
 
   return (
-    <div className="response__topdiv">
+    <>
       <div className="response__topleft">
         <div className="response__image">
           {responder?.picture && (
@@ -49,7 +49,7 @@ export default function ResponseTop({
           <ResponseReply togReply={togReply} />
         )}
       </div>
-    </div>
+    </>
   );
 }
 

@@ -157,14 +157,14 @@ export default function ResponseVote({ format, index }) {
   // #####################################################
 
   return (
-    <div className="response__vote">
+    <div className="vote__container">
       <IconPlus
-        className={`response__vote--plus ${liked ? "vote--active" : ""}`}
+        className={`vote__plus ${liked ? "vote--active" : ""}`}
         onClick={upvoteHandler}
       />
-      <p className="response__vote--total">{votes}</p>
+      <p className="vote__total">{votes}</p>
       <IconMinus
-        className={`response__vote--minus ${disliked ? "vote--active" : ""}`}
+        className={`vote__minus ${disliked ? "vote--active" : ""}`}
         onClick={downvoteHandler}
       />
     </div>

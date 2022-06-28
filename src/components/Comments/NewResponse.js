@@ -52,6 +52,13 @@ export default function NewResponse({ format, id, type, togReply }) {
 
     if (togReply) togReply();
 
+    setformatRef({
+      store: commentActions,
+      document: db.comments,
+      newComment: {
+        votes: 0,
+      },
+    });
     e.target.responseField.value = "";
   }
 

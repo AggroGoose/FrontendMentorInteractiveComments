@@ -7,6 +7,7 @@
   padding: 8px 32px;
   background: $gray-100;
   color: white;
+  height: 60px;
 
   &__logo {
     height: min-content;
@@ -21,8 +22,11 @@
 
   &__user {
     display: flex;
+    position: relative;
     justify-content: space-around;
+    align-items: center;
     gap: 16px;
+    height: 100%;
 
     p {
       margin: auto;
@@ -33,7 +37,11 @@
 
     &--img {
       pointer-events: all;
-      cursor: pointer;
+    }
+    &:hover {
+      .header__usernav {
+        display: block;
+      }
     }
   }
 
@@ -45,5 +53,47 @@
     &:hover {
       color: $gray-200;
     }
+  }
+
+  &__usernav {
+    display: none;
+    list-style: none;
+    padding: 8px;
+    margin: 0;
+    background-color: $gray-100;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    top: 100%;
+    right: 0%;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $gray-200;
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .header__user p {
+    display: none;
+  }
+
+  .header__usernav {
+    width: 130px;
+  }
+}
+
+@media (max-width: 550px) {
+  .header__logo h1 {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .header__logo h1 {
+    font-size: 1.1rem;
   }
 }
