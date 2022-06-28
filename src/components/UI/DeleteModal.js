@@ -81,7 +81,7 @@ export default function DeleteModal() {
           <p>
             Are you sure you want to delete this{" "}
             {type === "comment" ? "comment" : "reply"}? This will remove this{" "}
-            {type === "comment" ? "comment" : "reply"} and can't be undone.
+            {type === "comment" ? "comment" : "reply"} and can&apos;t be undone.
           </p>
         </div>
         <div className="modal__buttons">

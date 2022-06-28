@@ -1,6 +1,5 @@
 import { updateDoc, doc } from "firebase/firestore";
-import { useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { commentActions } from "../../../app/store/comment-slice";
 import { replyActions } from "../../../app/store/reply-slice";
 import { subreplyActions } from "../../../app/store/subreply-slice";
@@ -14,6 +13,7 @@ export default function ResponseContent({
   format,
   index,
 }) {
+  const dispatch = useDispatch();
   const id = item.id;
   return (
     <>
@@ -26,6 +26,7 @@ export default function ResponseContent({
           format={format}
           id={id}
           index={index}
+          dispatch={dispatch}
         />
       ) : (
         <PostContent content={item.content} />
@@ -49,10 +50,10 @@ function UserResponseContent({
   togEdit,
   index,
   format,
+  dispatch,
 }) {
   if (!editActive) return <p className="response__content">{content}</p>;
   //   formatIdentifier function is below.
-  const dispatch = useDispatch();
 
   async function editHandler(e) {
     e.preventDefault();

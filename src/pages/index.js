@@ -29,7 +29,7 @@ export default function Home(props) {
     dispatch(replyActions.setReplies(props.replies));
     dispatch(subreplyActions.setSubReplies(props.subreplies));
     setUserList(props.users);
-  }, []);
+  }, [dispatch, props.comments, props.replies, props.subreplies]);
 
   useEffect(() => {
     const newUser = {};
@@ -53,7 +53,7 @@ export default function Home(props) {
       }
       dispatch(userActions.userLogin({ userID: id, ...userList[id] }));
     }
-  }, [user]);
+  }, [user, dispatch, userList]);
 
   return (
     <>

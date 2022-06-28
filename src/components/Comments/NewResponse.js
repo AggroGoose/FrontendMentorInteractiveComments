@@ -20,7 +20,7 @@ export default function NewResponse({ format, id, type, togReply }) {
 
   useEffect(() => {
     setformatRef(formatter(format, type, db, id));
-  }, []);
+  }, [format, id, type, db]);
 
   useEffect(() => {
     if (user.userID) {

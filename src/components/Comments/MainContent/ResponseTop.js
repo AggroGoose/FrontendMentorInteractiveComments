@@ -20,7 +20,7 @@ export default function ResponseTop({
   useEffect(() => {
     const dateTime = timeCalculator(item.createdAt);
     dateTime ? setDateOutput(dateTime) : setDateOutput("Unknown Date");
-  }, []);
+  }, [item.createdAt]);
 
   return (
     <>
